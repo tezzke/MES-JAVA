@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mes</groupId>
+        <artifactId>mes-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>mes-infrastructure</artifactId>
+    <name>mes-infrastructure</name>
+    <description>② 数据处理与存储层:处理管道 / 报警判定 / 批量入库(SQLite)/ 实时缓存 / 数据保留清理。</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-core</artifactId>
+        </dependency>
+        <!-- JdbcTemplate + 事务 + 连接池;不使用 ORM,SQL 全部显式可控 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,81 @@
+# ============================================================================
+# 后端运行配置(设备与点位配置见同目录的 devices.json)
+# ============================================================================
+server:
+  # 监听 5100:供前端与 Swagger 访问
+  port: 5100
+  # 优雅停机:等后台服务把缓冲数据落库后再退出
+  shutdown: graceful
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: ${MES_SESSION_COOKIE_SECURE:false}
+        same-site: strict
+      timeout: 30m
+
+spring:
+  application:
+    name: mes-api
+  lifecycle:
+    # 停机各阶段的最长等待时间,需大于处理管道的收尾时间
+    timeout-per-shutdown-phase: 20s
+  # 业务库使用 mes-system 内显式命名的 Flyway Bean，防止自动迁移误用 SQLite。
+  flyway:
+    enabled: false
+  jackson:
+    serialization:
+      # 时间序列化为 ISO8601 字符串(2026-08-12T03:20:00Z),而不是数字时间戳
+      write-dates-as-timestamps: false
+
+# 存储策略
+storage:
+  # 攒够 200 条遥测记录触发一次批量写库
+  batch-size: 200
+  # 或最多等待 2 秒强制写库
+  flush-interval-ms: 2000
+  # 遥测历史保留 90 天,超期自动清理
+  retention-days: 90
+
+mes:
+  version: 1.0.0
+  # 设备档案文件路径;留空则按 "工作目录/devices.json → jar 内置" 的顺序查找
+  devices-config: ""
+  datasource:
+    telemetry:
+      jdbc-url: ${MES_TELEMETRY_DB_URL:jdbc:sqlite:data/mes.db}
+      driver-class-name: org.sqlite.JDBC
+      maximum-pool-size: 4
+      connection-init-sql: PRAGMA busy_timeout=5000
+    business:
+      enabled: ${MES_BUSINESS_DB_ENABLED:false}
+      jdbc-url: ${MES_BUSINESS_DB_URL:jdbc:mysql://localhost:3306/mes?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC}
+      username: ${MES_BUSINESS_DB_USERNAME:mes}
+      password: ${MES_BUSINESS_DB_PASSWORD:}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 10
+  security:
+    allowed-origins: ${MES_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  modbus-probe:
+    # 现场探针默认关闭；启用时必须同时配置目标 CIDR 白名单。
+    enabled: ${MES_MODBUS_PROBE_ENABLED:false}
+    allowed-cidrs: ${MES_MODBUS_PROBE_ALLOWED_CIDRS:}
+    allowed-ports: ${MES_MODBUS_PROBE_ALLOWED_PORTS:502}
+    max-concurrent: ${MES_MODBUS_PROBE_MAX_CONCURRENT:2}
+
+# 在线接口文档:http://localhost:5100/swagger
+springdoc:
+  swagger-ui:
+    path: /swagger
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    com.mes: INFO
+    org.springframework.web: WARN
+    org.springframework.jdbc: WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%thread] [%X{correlationId:-}] %logger{36} - %msg%n"

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      MES 后端聚合工程(Java 21 + Spring Boot 3)。
+      六个模块与分层一一对应,依赖方向由 Maven 在编译期强制:
+        mes-core           领域核心(不依赖任何模块,也不依赖 Web/数据库)
+        mes-acquisition    ① 数据采集层  → 依赖 core
+        mes-infrastructure ② 数据处理/存储层 → 依赖 core
+        mes-system         系统管理与安全域
+        mes-production     生产执行与主数据域 → 仅依赖 core
+        mes-api            接口层 + 组合根 → 依赖以上三个
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.mes</groupId>
+    <artifactId>mes-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>mes-parent</name>
+    <description>MES 生产监控系统(ModbusTCP · 汇川 PLC)后端</description>
+
+    <modules>
+        <module>mes-core</module>
+        <module>mes-acquisition</module>
+        <module>mes-infrastructure</module>
+        <module>mes-system</module>
+        <module>mes-production</module>
+        <module>mes-api</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sqlite-jdbc.version>3.45.3.0</sqlite-jdbc.version>
+        <springdoc.version>2.5.0</springdoc.version>
+        <flyway.version>10.17.0</flyway.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 各模块间的版本统一由本 POM 管理 -->
+            <dependency>
+                <groupId>com.mes</groupId>
+                <artifactId>mes-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mes</groupId>
+                <artifactId>mes-acquisition</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mes</groupId>
+                <artifactId>mes-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mes</groupId>
+                <artifactId>mes-system</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mes</groupId>
+                <artifactId>mes-production</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite-jdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

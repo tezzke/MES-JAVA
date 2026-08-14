@@ -1,0 +1,95 @@
+/* ============================================================
+   全局样式:工业监控暗色主题
+   所有页面共用的设计变量与基础布局类,组件内只写局部样式。
+   ============================================================ */
+
+:root {
+  --bg-page: #0b1220;        /* 页面底色 */
+  --bg-panel: #111a2c;       /* 面板底色 */
+  --bg-panel-hover: #16223a; /* 面板悬停 */
+  --border: #1e2a44;         /* 边框 */
+  --text-main: #e2e8f0;      /* 主文字 */
+  --text-sub: #7c8db5;       /* 次要文字 */
+  --accent: #38bdf8;         /* 强调色(青) */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+  font-size: 14px;
+}
+
+/* 通用面板卡片 */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title::before {
+  content: '';
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* 页面容器 */
+.page {
+  padding: 16px;
+  height: 100%;
+  overflow: auto;
+}
+
+.action-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.table-panel {
+  min-height: 200px;
+}
+
+.table-panel .el-pagination {
+  margin-top: 14px;
+  justify-content: flex-end;
+}
+
+.el-dialog {
+  --el-dialog-bg-color: var(--bg-panel);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #26334f;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

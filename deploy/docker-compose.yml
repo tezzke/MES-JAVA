@@ -1,0 +1,67 @@
+# 复制 deploy/.env.example 为 deploy/.env，填入秘密后：
+# docker compose --env-file deploy/.env -f deploy/docker-compose.yml up -d --build
+services:
+  mysql:
+    image: mysql:8.4.6
+    container_name: mes-mysql
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mes}
+      MYSQL_USER: ${MYSQL_USER:-mes_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in deploy/.env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in deploy/.env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  mes:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: app-runtime
+    container_name: mes
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "5100:5100"
+      - "6001:6001"
+    volumes:
+      - mes-data:/app/data
+      # - ./devices.json:/app/devices.json:ro
+    environment:
+      TZ: Asia/Shanghai
+      SPRING_PROFILES_ACTIVE: prod
+      MES_BUSINESS_DB_ENABLED: "true"
+      MES_BUSINESS_DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-mes}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
+      MES_BUSINESS_DB_USERNAME: ${MYSQL_USER:-mes_app}
+      MES_BUSINESS_DB_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in deploy/.env}
+      MES_BOOTSTRAP_ADMIN_PASSWORD: ${MES_BOOTSTRAP_ADMIN_PASSWORD:-}
+      MES_SESSION_COOKIE_SECURE: ${MES_SESSION_COOKIE_SECURE:-true}
+      MES_ALLOWED_ORIGINS: ${MES_ALLOWED_ORIGINS:?set the public HTTPS origin in deploy/.env}
+      MES_TELEMETRY_DB_URL: jdbc:sqlite:/app/data/mes.db
+      MES_MODBUS_PROBE_ENABLED: ${MES_MODBUS_PROBE_ENABLED:-false}
+      MES_MODBUS_PROBE_ALLOWED_CIDRS: ${MES_MODBUS_PROBE_ALLOWED_CIDRS:-}
+      MES_MODBUS_PROBE_ALLOWED_PORTS: ${MES_MODBUS_PROBE_ALLOWED_PORTS:-502}
+      MES_MODBUS_PROBE_MAX_CONCURRENT: ${MES_MODBUS_PROBE_MAX_CONCURRENT:-2}
+      # MES_DEVICES_CONFIG: /app/devices.json
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "--show-error", "http://localhost:5100/api/system/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql-data:
+  mes-data:

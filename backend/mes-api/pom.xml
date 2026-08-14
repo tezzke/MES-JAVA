@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mes</groupId>
+        <artifactId>mes-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>mes-api</artifactId>
+    <name>mes-api</name>
+    <description>接口层 + 组合根:REST 控制器 / WebSocket 实时推送 / 装配全部后台服务。</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-acquisition</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-infrastructure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mes</groupId>
+            <artifactId>mes-production</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- 实时推送通道(替代 .NET 版的 SignalR) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!-- 在线接口文档:/swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>mes-api</finalName>
+        <plugins>
+            <!-- 打成可直接 java -jar 运行的胖包 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.mes.api.MesApiApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

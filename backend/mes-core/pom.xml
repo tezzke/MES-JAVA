@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.mes</groupId>
+        <artifactId>mes-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>mes-core</artifactId>
+    <name>mes-core</name>
+    <description>领域核心层:实体/枚举/模型/配置/层间接口。只依赖日志门面,不依赖 Spring、数据库与 Modbus。</description>
+
+    <dependencies>
+        <!-- 日志门面(相当于 .NET 的 ILogger 抽象),不绑定具体实现 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
