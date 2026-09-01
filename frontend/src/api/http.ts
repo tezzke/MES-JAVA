@@ -52,7 +52,10 @@ http.interceptors.response.use(
       clearCsrfToken();
       unauthorizedHandler?.();
     } else if (error.response?.status === 403) {
-      ElMessage.warning(error.response.data?.message ?? '权限不足，操作已被拒绝');
+      const message = typeof error.response.data === 'object'
+        ? error.response.data?.message
+        : undefined;
+      ElMessage.warning(message ?? '请求被拒绝：权限不足、跨域来源未放行或 CSRF 校验失败');
     }
     return Promise.reject(error);
   },

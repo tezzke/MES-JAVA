@@ -15,10 +15,10 @@ export const statusText: Record<DeviceStatus, string> = {
 
 /** 设备状态 → 主题色(与 3D 场景、状态标签共用) */
 export const statusColor: Record<DeviceStatus, string> = {
-  Running: '#22c55e', // 绿
-  Standby: '#f59e0b', // 黄
-  Alarm: '#ef4444', // 红
-  Offline: '#64748b', // 灰
+  Running: '#16a34a',
+  Standby: '#d97706',
+  Alarm: '#dc2626',
+  Offline: '#6b7280',
 };
 
 /** UTC ISO 字符串 → 本地时间 "MM-dd HH:mm:ss" */

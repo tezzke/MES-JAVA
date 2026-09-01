@@ -1,5 +1,6 @@
 package com.mes.api.config;
 
+import com.mes.system.adapter.web.AllowedOrigins;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -9,7 +10,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,10 +29,9 @@ public class WebConfig implements WebMvcConfigurer {
     private static final String[] NO_FALLBACK_PREFIXES = { "api/", "hubs/", "v3/api-docs", "swagger", "webjars/" };
     private final List<String> allowedOrigins;
 
-    public WebConfig(@Value("${mes.security.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}")
+    public WebConfig(@Value("${mes.security.allowed-origins:" + AllowedOrigins.DEFAULT + "}")
                      String allowedOrigins) {
-        this.allowedOrigins = Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim).filter(value -> !value.isBlank()).toList();
+        this.allowedOrigins = AllowedOrigins.parse(allowedOrigins);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
         // 开发阶段前端(Vite:5173)与后端(5100)跨端口,需要放开 CORS;
         // 生产部署时前端构建产物由本服务直接托管,同源其实无需 CORS。
         registry.addMapping("/**")
-                .allowedOrigins(allowedOrigins.toArray(String[]::new))
+                .allowedOriginPatterns(allowedOrigins.toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Content-Type", "X-XSRF-TOKEN", "X-Correlation-ID")
                 .allowCredentials(true);

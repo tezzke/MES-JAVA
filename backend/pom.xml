@@ -38,11 +38,27 @@
     </modules>
 
     <properties>
+        <!--
+          全项目唯一的 Java 版本声明。改这里之前先同步以下四处,否则会出现"本地能编过、
+          CI 或容器里跑不起来"的错位:
+            .github/workflows/ci.yml     setup-java 的 java-version
+            deploy/Dockerfile            构建镜像与运行镜像的 temurin 标签
+            deploy/lib/java.ps1          $ProjectJavaMajorVersion(本机开发脚本的校验基准)
+            docs/*.md、README.md         环境要求说明
+        -->
         <java.version>21</java.version>
+        <!--
+          显式写出 release 而不是只靠 spring-boot-starter-parent 继承:
+          release 会同时约束语法级别与可见的 JDK API,因此即使用更高版本的 JDK 执行构建,
+          误用 Java 22+ 的新 API 也会在编译期直接报错,而不是等到 21 的运行环境上才崩。
+          仅设置 source/target 是做不到这一点的。
+        -->
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sqlite-jdbc.version>3.45.3.0</sqlite-jdbc.version>
         <springdoc.version>2.5.0</springdoc.version>
         <flyway.version>10.17.0</flyway.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -85,4 +101,36 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!--
+              构建 JDK 必须是 21.x。release=21 只约束编译产物,拦不住"用 JDK 26 跑测试":
+              Spring Boot 3.2.5 自带的 Mockito / Byte Buddy 1.14 不识别 Java 25+,
+              本机用 D:\JDK(26) 跑 ReadinessServiceTest 会直接 Instrumentation 失败。
+              区间写成 [21,22) 而不是 >=21,就是为了把这类"能编过、测不过"的错位拦在构建入口。
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>require-jdk-21</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,22)</version>
+                                    <message>本项目必须用 JDK 21 构建与测试(与 CI Temurin 21、Docker Temurin 21、maven.compiler.release=21 一致)。更高版本(如 25/26)上 Mockito/Byte Buddy 无法插桩;更低版本无法编译 release=21。请把 JAVA_HOME 指向 JDK 21,或按 deploy/java-home.local.example 写本机路径。</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

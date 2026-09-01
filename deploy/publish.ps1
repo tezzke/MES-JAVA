@@ -3,6 +3,9 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $dist = Join-Path $PSScriptRoot 'dist'
 
+. (Join-Path $PSScriptRoot 'lib\java.ps1')
+$null = Use-ProjectJdk
+
 Write-Host '[1/6] Testing frontend...' -ForegroundColor Cyan
 Push-Location (Join-Path $root 'frontend')
 npm ci
@@ -27,6 +30,7 @@ New-Item $dist -ItemType Directory | Out-Null
 Copy-Item (Join-Path $root 'backend/mes-api/target/mes-api.jar') $dist
 Copy-Item (Join-Path $root 'frontend/dist') (Join-Path $dist 'wwwroot') -Recurse -Force
 Copy-Item (Join-Path $root 'backend/mes-api/src/main/resources/devices.json') $dist
+Copy-Item (Join-Path $root 'backend/mes-api/src/main/resources/plant.json') $dist
 
 Write-Host '[5/6] Creating safe launcher...' -ForegroundColor Cyan
 @'
@@ -38,7 +42,11 @@ if "%MES_BUSINESS_DB_USERNAME%"=="" goto :missing_user
 if "%MES_BUSINESS_DB_PASSWORD%"=="" goto :missing_password
 if "%MES_ALLOWED_ORIGINS%"=="" goto :missing_origins
 if /I not "%MES_SESSION_COOKIE_SECURE%"=="true" goto :insecure_cookie
-java -XX:MaxRAMPercentage=75 -jar mes-api.jar --mes.devices-config=devices.json
+where java >nul 2>&1
+if errorlevel 1 goto :missing_java
+java -version 2>&1 | findstr /C:"version \"21" >nul
+if errorlevel 1 goto :wrong_java
+java -XX:MaxRAMPercentage=75 -jar mes-api.jar --mes.devices-config=devices.json --mes.plant-config=plant.json
 set EXIT_CODE=%ERRORLEVEL%
 pause
 exit /b %EXIT_CODE%
@@ -61,11 +69,21 @@ exit /b 2
 :insecure_cookie
 echo ERROR: MES_SESSION_COOKIE_SECURE must be true for production.
 exit /b 2
+:missing_java
+echo ERROR: java was not found. Install JRE 21 and put it on PATH.
+exit /b 2
+:wrong_java
+echo ERROR: this release requires Java 21. Higher versions are not supported.
+java -version
+exit /b 2
 '@ | Set-Content (Join-Path $dist 'start.bat') -Encoding OEM
 
 Write-Host '[6/6] Creating startup guide...' -ForegroundColor Cyan
 @'
 # Required startup environment
+
+Runtime is **Java 21** (same major version as the CI Temurin 21 image and
+`maven.compiler.release`). `start.bat` refuses any other `java -version`.
 
 `start.bat` does not contain, persist, or print passwords. Configure these values
 in the secured environment of the Windows service account:

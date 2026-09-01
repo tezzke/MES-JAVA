@@ -57,7 +57,7 @@ if (-not $values.MYSQL_ROOT_PASSWORD) {
 $values.MYSQL_DATABASE = 'mes'
 $values.MYSQL_USER = 'mes_app'
 $values.MES_BOOTSTRAP_ADMIN_PASSWORD = 'admin123'
-$values.MES_ALLOWED_ORIGINS = 'http://localhost:5173,http://127.0.0.1:5173'
+$values.MES_ALLOWED_ORIGINS = 'http://localhost:5173,http://127.0.0.1:5173,http://192.168.130.108:5173'
 
 @(
     "MYSQL_DATABASE=$($values.MYSQL_DATABASE)"

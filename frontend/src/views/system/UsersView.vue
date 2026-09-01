@@ -3,6 +3,8 @@ import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { systemApi, type Role, type UserProfile } from '../../api/management';
 import { useAuthStore } from '../../stores/auth';
+import PageHeader from '../../components/PageHeader.vue';
+import { PAGE_COPY } from '../../navigation';
 
 const auth = useAuthStore();
 const rows = ref<UserProfile[]>([]);
@@ -31,11 +33,20 @@ function open(row?: UserProfile) {
   dialog.value = true;
 }
 async function save() {
+  const creating = editingId.value == null;
+  const username = form.username;
   await systemApi.saveUser(editingId.value, form);
-  ElMessage.success('用户已保存'); dialog.value = false; await load();
+  ElMessage.success('人员账号已保存'); dialog.value = false; await load();
+  if (creating) {
+    const created = rows.value.find((row) => row.username === username);
+    if (created && created.roles.length === 0) {
+      ElMessage.warning('新账号尚未分配岗位，登录后无法进入车间功能，请先分配岗位权限');
+      authorize(created);
+    }
+  }
 }
 async function remove(row: UserProfile) {
-  await ElMessageBox.confirm(`确认删除用户 ${row.username}？`, '删除确认', { type: 'warning' });
+  await ElMessageBox.confirm(`确认删除人员账号 ${row.username}？`, '删除确认', { type: 'warning' });
   await systemApi.deleteUser(row.id); await load();
 }
 async function toggle(row: UserProfile) {
@@ -50,44 +61,45 @@ function authorize(row: UserProfile) {
 async function saveRoles() {
   if (!roleUser.value) return;
   await systemApi.assignUserRoles(roleUser.value.id, selectedRoleIds.value);
-  ElMessage.success('角色已分配'); roleDialog.value = false; await load();
+  ElMessage.success('岗位已分配'); roleDialog.value = false; await load();
 }
 onMounted(load);
 </script>
 
 <template>
   <div class="page">
+    <PageHeader :title="PAGE_COPY['/system/users'].title" :subtitle="PAGE_COPY['/system/users'].subtitle" />
     <div class="panel action-panel">
-      <el-button v-if="auth.has('USER_WRITE')" type="primary" @click="open()">新增用户</el-button>
+      <el-button v-if="auth.has('USER_WRITE')" type="primary" @click="open()">新增人员</el-button>
       <el-button @click="load">刷新</el-button>
     </div>
     <div class="panel table-panel">
       <el-table v-loading="loading" :data="rows">
-        <el-table-column prop="username" label="用户名" />
-        <el-table-column prop="displayName" label="显示名" />
-        <el-table-column label="状态"><template #default="{row}"><el-tag :type="row.enabled?'success':'info'">{{ row.enabled?'启用':'禁用' }}</el-tag></template></el-table-column>
-        <el-table-column label="角色"><template #default="{row}">{{ row.roles.join(', ') || '-' }}</template></el-table-column>
+        <el-table-column prop="username" label="工号" />
+        <el-table-column prop="displayName" label="姓名" />
+        <el-table-column label="状态"><template #default="{row}"><el-tag :type="row.enabled?'success':'info'">{{ row.enabled?'在岗':'停用' }}</el-tag></template></el-table-column>
+        <el-table-column label="岗位"><template #default="{row}">{{ row.roles.join(', ') || '-' }}</template></el-table-column>
         <el-table-column label="操作" width="300">
           <template #default="{row}">
             <el-button v-if="auth.has('USER_WRITE')" link type="primary" @click="open(row)">编辑</el-button>
-            <el-button v-if="auth.has('USER_WRITE')" link :type="row.enabled?'warning':'success'" @click="toggle(row)">{{ row.enabled?'禁用':'启用' }}</el-button>
-            <el-button v-if="auth.has('USER_AUTHORIZE')" link type="primary" @click="authorize(row)">分配角色</el-button>
+            <el-button v-if="auth.has('USER_WRITE')" link :type="row.enabled?'warning':'success'" @click="toggle(row)">{{ row.enabled?'停用':'启用' }}</el-button>
+            <el-button v-if="auth.has('USER_AUTHORIZE')" link type="primary" @click="authorize(row)">分配岗位</el-button>
             <el-button v-if="auth.has('USER_WRITE')" link type="danger" @click="remove(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-pagination v-model:current-page="page" v-model:page-size="size" :total="total" layout="total, sizes, prev, pager, next" @change="load" />
     </div>
-    <el-dialog v-model="dialog" :title="editingId?'编辑用户':'新增用户'" width="520">
+    <el-dialog v-model="dialog" :title="editingId?'编辑人员':'新增人员'" width="520">
       <el-form :model="form" label-width="90px">
-        <el-form-item label="用户名"><el-input v-model="form.username" maxlength="64" /></el-form-item>
-        <el-form-item label="显示名"><el-input v-model="form.displayName" maxlength="100" /></el-form-item>
+        <el-form-item label="工号"><el-input v-model="form.username" maxlength="64" /></el-form-item>
+        <el-form-item label="姓名"><el-input v-model="form.displayName" maxlength="100" /></el-form-item>
         <el-form-item :label="editingId?'新密码':'密码'"><el-input v-model="form.password" type="password" show-password maxlength="128" /></el-form-item>
-        <el-form-item label="启用"><el-switch v-model="form.enabled" /></el-form-item>
+        <el-form-item label="在岗"><el-switch v-model="form.enabled" /></el-form-item>
       </el-form>
       <template #footer><el-button @click="dialog=false">取消</el-button><el-button type="primary" @click="save">保存</el-button></template>
     </el-dialog>
-    <el-dialog v-model="roleDialog" title="分配角色" width="480">
+    <el-dialog v-model="roleDialog" title="分配岗位" width="480">
       <el-checkbox-group v-model="selectedRoleIds"><el-checkbox v-for="role in roles" :key="role.id" :value="role.id">{{ role.name }}（{{ role.code }}）</el-checkbox></el-checkbox-group>
       <template #footer><el-button @click="roleDialog=false">取消</el-button><el-button type="primary" @click="saveRoles">保存</el-button></template>
     </el-dialog>

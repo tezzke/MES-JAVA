@@ -30,19 +30,19 @@ function render() {
     },
     xAxis: {
       type: 'time',
-      axisLine: { lineStyle: { color: '#33415e' } },
-      axisLabel: { color: '#7c8db5' },
+      axisLine: { lineStyle: { color: '#c9cdd3' } },
+      axisLabel: { color: '#6b7280' },
     },
     yAxis: {
       type: 'value',
       scale: true,
       name: props.unit,
-      splitLine: { lineStyle: { color: '#1e2a44' } },
-      axisLabel: { color: '#7c8db5' },
+      splitLine: { lineStyle: { color: '#eef0f3' } },
+      axisLabel: { color: '#6b7280' },
     },
     dataZoom: [
       { type: 'inside' },
-      { type: 'slider', height: 18, bottom: 8, borderColor: '#1e2a44' },
+      { type: 'slider', height: 18, bottom: 8, borderColor: '#e6e8eb' },
     ],
     series: [
       {
@@ -50,11 +50,11 @@ function render() {
         type: 'line',
         showSymbol: false,
         smooth: true,
-        lineStyle: { color: '#38bdf8', width: 1.6 },
+        lineStyle: { color: '#2563eb', width: 1.8 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(56,189,248,0.25)' },
-            { offset: 1, color: 'rgba(56,189,248,0)' },
+            { offset: 0, color: 'rgba(37,99,235,0.16)' },
+            { offset: 1, color: 'rgba(37,99,235,0)' },
           ]),
         },
         data: props.data,

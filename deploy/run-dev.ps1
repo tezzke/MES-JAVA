@@ -7,6 +7,10 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $environmentFile = Join-Path $PSScriptRoot '.env.local'
 
+# Resolve JDK 21 first. mvnw and java -jar both honor JAVA_HOME; do not wait for Maven to fail on 26.
+. (Join-Path $PSScriptRoot 'lib\java.ps1')
+$jdk = Use-ProjectJdk
+
 & (Join-Path $PSScriptRoot 'setup-dev-mysql.ps1') -Port $MySqlPort
 
 foreach ($line in Get-Content -LiteralPath $environmentFile) {
@@ -22,25 +26,6 @@ $env:MES_BUSINESS_DB_USERNAME = $env:MYSQL_USER
 $env:MES_BUSINESS_DB_PASSWORD = $env:MYSQL_PASSWORD
 $env:MES_SESSION_COOKIE_SECURE = 'false'
 
-$javaCommand = Get-Command java -ErrorAction SilentlyContinue
-if (-not $javaCommand) {
-    $portableJavaHome = Join-Path $env:TEMP `
-        'mes-toolchain\microsoft-jdk\PFiles64\Microsoft\jdk-21.0.12.8-hotspot'
-    $portableJava = Join-Path $portableJavaHome 'bin\java.exe'
-    if (Test-Path -LiteralPath $portableJava -PathType Leaf) {
-        $env:JAVA_HOME = $portableJavaHome
-        $java = $portableJava
-    } else {
-        throw 'java was not found. Install Java 21 and configure JAVA_HOME before running this script.'
-    }
-} else {
-    $java = $javaCommand.Source
-}
-
-if (-not $env:JAVA_HOME) {
-    $env:JAVA_HOME = Split-Path (Split-Path $java -Parent) -Parent
-}
-
 $backendDirectory = Join-Path $root 'backend'
 $maven = Join-Path $backendDirectory 'mvnw.cmd'
 $applicationJar = Join-Path $backendDirectory 'mes-api\target\mes-api.jar'
@@ -55,7 +40,7 @@ try {
         throw "Backend jar was not generated: $applicationJar"
     }
 
-    & $java -jar $applicationJar
+    & $jdk.Java -jar $applicationJar
     if ($LASTEXITCODE -ne 0) {
         throw "Backend exited with code $LASTEXITCODE"
     }

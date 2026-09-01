@@ -77,17 +77,17 @@ onMounted(query);
     <!-- 当前激活报警 -->
     <div class="panel">
       <div class="panel-title">
-        当前激活报警
-        <el-tag v-if="activeAlarms.length" type="danger" size="small" effect="dark">
+        未复位报警
+        <el-tag v-if="activeAlarms.length" type="danger" size="small">
           {{ activeAlarms.length }}
         </el-tag>
       </div>
-      <el-table :data="activeAlarms" size="small" height="240" empty-text="当前无激活报警">
+      <el-table :data="activeAlarms" size="small" height="240" empty-text="现场暂无未复位报警">
         <el-table-column prop="deviceName" label="设备" width="150" />
         <el-table-column prop="pointName" label="点位" width="130" />
         <el-table-column label="等级" width="90">
           <template #default="{ row }">
-            <el-tag :type="levelTag(row.level)" size="small" effect="dark">
+            <el-tag :type="levelTag(row.level)" size="small">
               {{ levelText(row.level) }}
             </el-tag>
           </template>
@@ -107,7 +107,7 @@ onMounted(query);
 
     <!-- 历史报警 -->
     <div class="panel history-panel">
-      <div class="panel-title">历史报警查询</div>
+      <div class="panel-title">报警履历</div>
       <div class="query-bar">
         <el-select v-model="filterDevice" placeholder="全部设备" clearable style="width: 220px">
           <el-option

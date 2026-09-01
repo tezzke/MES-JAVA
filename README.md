@@ -18,7 +18,10 @@
 
 ## 开发运行
 
-环境要求：JDK 21、项目内 Maven Wrapper 3.9.11、Node.js 20.19.x、MySQL 8。
+环境要求：**JDK 21**（不要用 25/26）、项目内 Maven Wrapper 3.9.11、Node.js 20.19.x、MySQL 8。
+IntelliJ 的项目 SDK 必须选 21；它不会自动写进 PowerShell 的 `JAVA_HOME`。
+本机脚本只认项目级路径，查找顺序：`MES_JAVA_HOME` → `deploy/java-home.local` → 系统 `JAVA_HOME` / `PATH`（且必须是 21）。
+复制 `deploy/java-home.local.example` 为 `deploy/java-home.local` 并写入本机 JDK 21 目录即可，该文件已忽略。
 
 先创建 MySQL 数据库和最小权限账号，并设置环境变量。初始管理员密码**没有默认值**；首次空库启动时必须显式设置 `MES_BOOTSTRAP_ADMIN_PASSWORD`，创建后应立即轮换并从环境中移除。
 
@@ -49,9 +52,18 @@ npm run dev
 - 双库备份与恢复使用 `deploy/backup.ps1` 和 `deploy/restore.ps1`，操作步骤见部署文档。
 - Linux 内网离线交付见 [离线安装手册](deploy/OFFLINE-LINUX.md)，依赖缓存要求见 [离线依赖与构建](docs/离线依赖与构建.md)。
 
-## 设备配置
+## 现场配置
 
-设备档案位于 `backend/mes-api/src/main/resources/devices.json`，发布目录可使用 jar 同级 `devices.json`。将采集模式改为 `Modbus` 后按现场填写设备地址、从站号、点表和扫码枪来源 IP；采集端只读设备，不提供 PLC 写入能力。
+现场只需维护两个 JSON，都支持放在 jar 同级目录覆盖 jar 内置档案，改完重启即可，无需重新构建：
+
+- `devices.json` —— **采集侧**：采集模式、设备地址与从站号、寄存器点表、扫码枪来源 IP、3D 场景坐标。
+  将 `Acquisition.Mode` 改为 `Modbus` 即切换到真实 PLC；采集端只读设备，不提供 PLC 写入能力。
+- `plant.json` —— **展示侧**：3D 车间的厂房壳体（轴网、墙体、分区）与设备外观模型（机身尺寸、构件、配色）。
+  厂房数据来自施工图，设备外观数据来自各设备技术协议书，每个模型都记录了尺寸出处。
+
+两份文件拆开是因为责任人不同：点表归电气调试，厂房与外观归图纸与协议书。
+`PlantConfigConsistencyTest` 会在构建阶段校验两者的引用完整性与坐标合理性，改完建议先跑一遍。
+改法见 [操作手册](docs/操作手册.md) 9.2 节。
 
 ## 目录
 

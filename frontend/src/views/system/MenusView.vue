@@ -3,6 +3,8 @@ import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { systemApi, type Menu } from '../../api/management';
 import { useAuthStore } from '../../stores/auth';
+import PageHeader from '../../components/PageHeader.vue';
+import { PAGE_COPY } from '../../navigation';
 
 const auth=useAuthStore(); const rows=ref<Menu[]>([]); const dialog=ref(false); const editingId=ref<number|null>(null);
 const form=reactive<Omit<Menu,'id'>>({parentId:null,name:'',path:'',permissionCode:null,sortOrder:0,enabled:true});
@@ -14,6 +16,7 @@ onMounted(load);
 </script>
 <template>
   <div class="page">
+    <PageHeader :title="PAGE_COPY['/system/menus'].title" :subtitle="PAGE_COPY['/system/menus'].subtitle" />
     <div class="panel action-panel"><el-button v-if="auth.has('MENU_WRITE')" type="primary" @click="open()">新增菜单</el-button><el-button @click="load">刷新</el-button></div>
     <div class="panel table-panel"><el-table :data="rows">
       <el-table-column prop="name" label="名称"/><el-table-column prop="path" label="路径"/><el-table-column prop="permissionCode" label="权限码"/><el-table-column prop="parentId" label="父菜单 ID"/><el-table-column prop="sortOrder" label="排序" width="80"/>

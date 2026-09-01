@@ -21,6 +21,7 @@ deploy/offline-dist/
 deploy/backups/
 deploy/.env
 deploy/.env.local
+deploy/java-home.local
 deploy/dev-mysql/
 
 # IDE

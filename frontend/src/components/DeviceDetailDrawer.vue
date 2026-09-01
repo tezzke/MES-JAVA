@@ -143,12 +143,13 @@ const selectedPointMeta = computed(() =>
   font-family: Consolas, monospace;
 }
 .p-value.warn {
-  color: #f59e0b;
+  color: var(--warn);
+  font-weight: 650;
 }
 .p-quality {
   width: 60px;
   text-align: right;
-  color: #f59e0b;
+  color: var(--warn);
   font-size: 12px;
 }
 .trend-box {

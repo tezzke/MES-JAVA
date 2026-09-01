@@ -3,6 +3,7 @@
 ## 约束
 
 - 目标机需要 Linux amd64、Docker Engine 和 Docker Compose v2，不需要互联网。
+  应用镜像内置 Eclipse Temurin **JRE 21**，目标机不必再装宿主机 JDK。
 - Web 只由 Nginx 发布 HTTP 端口；应用的 5100 和 MySQL 3306 不发布。
 - `SCANNER_PORT` 是宿主机扫码枪 TCP 端口，转发到容器内固定 6001。若修改
   `devices.json` 的 `Scanner.ListenPort`，需同步修改 compose 的容器端口。
@@ -24,7 +25,8 @@ content ID/digest 的 `IMAGE-MANIFEST.txt` 和最终交付 tar.gz。
 
 1. 将 tar.gz 与同名 `.sha256` 复制到目标机并校验、解压。
 2. 复制 `.env.example` 到目标机安全路径，填写强密码和精确 HTTP Origin，权限设为 0600。
-3. 按现场点表修改解压目录中的 `devices.json`。
+3. 按现场点表修改解压目录中的 `devices.json`；如厂房或设备尺寸与现场复测不一致，
+   同时修改 `plant.json`（3D 车间的厂房壳体与设备外观，详见 `docs/操作手册.md` 9.2 节）。
 4. 如需单设备现场调试，在环境文件中启用
    `MES_MODBUS_PROBE_ENABLED=true`，并把 `MES_MODBUS_PROBE_ALLOWED_CIDRS`
    收窄到设备网段；调试结束后关闭。详细字段与验收流程见项目文档
@@ -36,7 +38,8 @@ sudo ./linux/install.sh --env /secure/path/mes.env
 ```
 
 数据固定在 `/opt/mes/mysql`、`/opt/mes/telemetry`、`/opt/mes/config` 和
-`/opt/mes/backups`。设备配置以只读方式挂入应用容器。首次登录并修改 admin
+`/opt/mes/backups`。`devices.json` 与 `plant.json` 以只读方式挂入应用容器，
+且只在首次安装时铺默认档案 —— 升级不会覆盖现场已调好的配置。首次登录并修改 admin
 密码后，清空 `/opt/mes/config/mes.env` 中的 `MES_BOOTSTRAP_ADMIN_PASSWORD`，
 再执行当前版本的 `upgrade.sh --skip-backup` 使容器重建。
 

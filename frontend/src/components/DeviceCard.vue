@@ -55,18 +55,18 @@ function isStatusPoint(name: string): boolean {
 .device-card {
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 12px 14px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
 .device-card:hover {
   background: var(--bg-panel-hover);
   border-color: var(--accent);
 }
 .device-card.alarm {
-  border-color: #ef4444;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
 }
 .device-card.offline {
   opacity: 0.65;
@@ -98,10 +98,11 @@ function isStatusPoint(name: string): boolean {
   color: var(--text-sub);
 }
 .point-value {
-  font-family: Consolas, monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .point-value.bad {
-  color: #f59e0b;
+  color: var(--warn);
 }
 .unit {
   font-style: normal;

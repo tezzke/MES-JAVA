@@ -107,10 +107,14 @@ prepare_directories() {
     "${INSTALL_ROOT}/backups"
   install -d -m 0750 -o root -g 10001 "${INSTALL_ROOT}/config"
   chown 10001:10001 "${INSTALL_ROOT}/telemetry" "${INSTALL_ROOT}/backups"
-  if [[ ! -f "${INSTALL_ROOT}/config/devices.json" ]]; then
-    install -m 0640 -o root -g 10001 \
-      "${BUNDLE_ROOT}/devices.json" "${INSTALL_ROOT}/config/devices.json"
-  fi
+  # 首装才铺默认配置:升级时保留现场已调好的点表与厂房模型
+  local name
+  for name in devices.json plant.json; do
+    if [[ ! -f "${INSTALL_ROOT}/config/${name}" ]]; then
+      install -m 0640 -o root -g 10001 \
+        "${BUNDLE_ROOT}/${name}" "${INSTALL_ROOT}/config/${name}"
+    fi
+  done
 }
 
 install_release_files() {

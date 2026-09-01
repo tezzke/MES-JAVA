@@ -9,6 +9,8 @@ import {
   type ModbusProbeSession,
 } from '../api/modbusProbe';
 import { downloadText, samplesToCsv, samplesToJson } from '../utils/modbusProbeExport';
+import PageHeader from '../components/PageHeader.vue';
+import { PAGE_COPY } from '../navigation';
 
 const form = reactive<ModbusProbeRequest>({
   ip: '192.168.1.10',
@@ -173,8 +175,9 @@ onBeforeUnmount(stopAutoRefresh);
 
 <template>
   <div class="page probe-page">
+    <PageHeader :title="PAGE_COPY['/system/modbus-probe'].title" :subtitle="PAGE_COPY['/system/modbus-probe'].subtitle" />
     <section class="panel">
-      <div class="panel-title">Modbus TCP 请求参数</div>
+      <div class="panel-title">通讯参数</div>
       <el-form :model="form" label-position="top" class="probe-form">
         <el-form-item label="IP">
           <el-input v-model.trim="form.ip" placeholder="192.168.1.10" />

@@ -41,6 +41,8 @@ mes:
   version: 1.0.0
   # 设备档案文件路径;留空则按 "工作目录/devices.json → jar 内置" 的顺序查找
   devices-config: ""
+  # 厂房与设备外观模型文件路径;留空则按 "工作目录/plant.json → jar 内置" 的顺序查找
+  plant-config: ""
   datasource:
     telemetry:
       jdbc-url: ${MES_TELEMETRY_DB_URL:jdbc:sqlite:data/mes.db}
@@ -55,7 +57,8 @@ mes:
       driver-class-name: com.mysql.cj.jdbc.Driver
       maximum-pool-size: 10
   security:
-    allowed-origins: ${MES_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+    # 开发默认放行本机与内网 Vite；含 * 的项按 Origin 模式匹配。生产必须用 MES_ALLOWED_ORIGINS 覆盖为精确来源。
+    allowed-origins: ${MES_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,http://192.168.*.*:*,http://10.*.*.*:*,http://172.*.*.*:*}
   modbus-probe:
     # 现场探针默认关闭；启用时必须同时配置目标 CIDR 白名单。
     enabled: ${MES_MODBUS_PROBE_ENABLED:false}

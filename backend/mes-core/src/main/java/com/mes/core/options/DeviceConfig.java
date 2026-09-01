@@ -9,13 +9,16 @@ import java.util.List;
  */
 public class DeviceConfig {
 
-    /** 设备唯一编码,如 "CNC-01"。作为全系统的设备主键。 */
+    /** 设备唯一编码,如 "COAT-01"。作为全系统的设备主键。 */
     private String deviceId = "";
 
-    /** 设备显示名称,如 "CNC加工中心1号"。 */
+    /** 设备显示名称,如 "12米涂布机"。 */
     private String name = "";
 
-    /** 设备类型,如 "cnc" / "assembly",用于前端 3D 模型与图标选择。 */
+    /**
+     * 设备类型,如 "coater" / "laserweld-1k"。
+     * 前端据此在 plant.json 的 DeviceModels 里查外观模型,查不到时退化为通用体块。
+     */
     private String type = "";
 
     /** 所属产线/工段名称。 */

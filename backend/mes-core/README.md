@@ -2,7 +2,7 @@
 
 ## 职责
 
-领域共享内核，定义设备/点位配置、遥测与报警实体、实时快照、后台任务基类，以及模块间端口。它不负责网络接入、数据库实现、HTTP 或 Spring 装配。
+领域共享内核，定义设备/点位配置、厂房与设备外观模型、遥测与报警实体、实时快照、后台任务基类，以及模块间端口。它不负责网络接入、数据库实现、HTTP 或 Spring 装配。
 
 ## 依赖规则
 
@@ -21,6 +21,9 @@
 - 实时能力：`RealtimeCache`、`RealtimeNotifier`。
 - 跨域审计：`AuditRecorder`。
 - 生命周期：`BackgroundService`。
+- 厂房数字孪生：`plant` 包下的 `PlantLayout`（`plant.json` 根节点）、`PlantShell`、
+  `AxisGrid`、`WallSegment`、`PlantZone`、`DeviceModel`、`ModelPart`。这些是纯配置模型，
+  只描述几何与外观，不含任何渲染逻辑——渲染在前端，加载在 mes-api。
 
 ## 维护与扩展
 

@@ -39,5 +39,4 @@ public class MesApiApplication {
             throw new IllegalStateException("无法创建数据目录:" + dataDir, ex);
         }
     }
-
 }

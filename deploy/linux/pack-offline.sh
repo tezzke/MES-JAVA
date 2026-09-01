@@ -64,6 +64,7 @@ cp "${DEPLOY_DIR}/docker-compose.offline.yml" "${stage}/"
 cp "${DEPLOY_DIR}/.env.offline.example" "${stage}/.env.example"
 cp "${DEPLOY_DIR}/OFFLINE-LINUX.md" "${stage}/README.md"
 cp "${REPO_ROOT}/backend/mes-api/src/main/resources/devices.json" "${stage}/devices.json"
+cp "${REPO_ROOT}/backend/mes-api/src/main/resources/plant.json" "${stage}/plant.json"
 cp "${SCRIPT_DIR}"/*.sh "${stage}/linux/"
 chmod 0755 "${stage}/linux/"*.sh
 
@@ -71,7 +72,7 @@ printf '[5/6] Writing SHA256 manifest\n'
 (
   cd "${stage}"
   sha256sum VERSION IMAGE-MANIFEST.txt images-amd64.tar docker-compose.offline.yml \
-    .env.example README.md devices.json linux/*.sh > manifest.sha256
+    .env.example README.md devices.json plant.json linux/*.sh > manifest.sha256
 )
 
 printf '[6/6] Creating delivery archive\n'

@@ -26,7 +26,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -82,7 +81,8 @@ public class SecurityConfiguration {
                     } else {
                         auth.requestMatchers("/swagger/**", "/v3/api-docs/**").permitAll();
                     }
-                    auth.requestMatchers("/api/telemetry/**", "/api/devices/**")
+                    // 厂房模型与设备档案同属 3D 车间的只读骨架数据,共用遥测读权限。
+                    auth.requestMatchers("/api/telemetry/**", "/api/devices/**", "/api/plant/**")
                             .hasAuthority("TELEMETRY_READ");
                     auth.requestMatchers("/api/alarms/**").hasAuthority("ALARM_READ");
                     auth.requestMatchers("/api/barcodes/**").hasAuthority("BARCODE_READ");
@@ -118,11 +118,10 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource(
-            @Value("${mes.security.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}")
+            @Value("${mes.security.allowed-origins:" + AllowedOrigins.DEFAULT + "}")
             String origins) {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(origins.split(","))
-                .map(String::trim).filter(value -> !value.isBlank()).toList());
+        AllowedOrigins.apply(configuration, origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN", "X-Correlation-ID"));
         configuration.setExposedHeaders(List.of("X-Correlation-ID"));

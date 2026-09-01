@@ -1,16 +1,26 @@
 /* ============================================================
-   全局样式:工业监控暗色主题
-   所有页面共用的设计变量与基础布局类,组件内只写局部样式。
+   全局样式:白底灰阶主色,状态/强调处点缀彩色
    ============================================================ */
 
 :root {
-  --bg-page: #0b1220;        /* 页面底色 */
-  --bg-panel: #111a2c;       /* 面板底色 */
-  --bg-panel-hover: #16223a; /* 面板悬停 */
-  --border: #1e2a44;         /* 边框 */
-  --text-main: #e2e8f0;      /* 主文字 */
-  --text-sub: #7c8db5;       /* 次要文字 */
-  --accent: #38bdf8;         /* 强调色(青) */
+  --bg-page: #f4f5f7;
+  --bg-panel: #ffffff;
+  --bg-panel-hover: #f7f8fa;
+  --bg-sidebar: #fafbfc;
+  --bg-elevated: #ffffff;
+  --border: #e6e8eb;
+  --border-strong: #c9cdd3;
+  --text-main: #1c1d1f;
+  --text-sub: #6b7280;
+  --accent: #2563eb;
+  --accent-dim: rgba(37, 99, 235, 0.1);
+  --ok: #16a34a;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --radius: 8px;
+  --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.04);
+  --font-sans: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: Consolas, 'Cascadia Mono', monospace;
 }
 
 * {
@@ -24,21 +34,72 @@ body,
   margin: 0;
   background: var(--bg-page);
   color: var(--text-main);
-  font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
 }
 
-/* 通用面板卡片 */
+.el-button--primary {
+  --el-button-bg-color: #1c1d1f;
+  --el-button-border-color: #1c1d1f;
+  --el-button-hover-bg-color: #333438;
+  --el-button-hover-border-color: #333438;
+  --el-button-active-bg-color: #111111;
+  --el-button-active-border-color: #111111;
+}
+
+.el-button--primary.is-link,
+.el-button--primary.is-text {
+  --el-button-text-color: var(--accent);
+  --el-button-hover-text-color: #1d4ed8;
+  --el-button-bg-color: transparent;
+  --el-button-border-color: transparent;
+}
+
+.el-table {
+  --el-table-bg-color: #ffffff;
+  --el-table-tr-bg-color: #ffffff;
+  --el-table-header-bg-color: #f7f8fa;
+  --el-table-row-hover-bg-color: #f4f5f7;
+  --el-table-border-color: var(--border);
+  font-size: 13px;
+}
+
+.el-table th.el-table__cell {
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.el-dialog {
+  --el-dialog-bg-color: #ffffff;
+  --el-dialog-border-radius: var(--radius);
+}
+
+.el-card {
+  --el-card-bg-color: #ffffff;
+  --el-card-border-color: var(--border);
+}
+
+.el-input__wrapper,
+.el-select__wrapper {
+  box-shadow: 0 0 0 1px var(--border) inset !important;
+}
+
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px var(--accent) inset !important;
+}
+
 .panel {
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 14px 16px;
+  box-shadow: var(--shadow-panel);
 }
 
 .panel-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 650;
   margin-bottom: 12px;
   color: var(--text-main);
   display: flex;
@@ -49,16 +110,36 @@ body,
 .panel-title::before {
   content: '';
   width: 3px;
-  height: 14px;
+  height: 12px;
   border-radius: 2px;
-  background: var(--accent);
+  background: var(--text-main);
 }
 
-/* 页面容器 */
 .page {
-  padding: 16px;
+  padding: 16px 20px 22px;
   height: 100%;
   overflow: auto;
+  background: var(--bg-page);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.page-header p {
+  margin: 4px 0 0;
+  color: var(--text-sub);
+  font-size: 12px;
 }
 
 .action-panel {
@@ -77,17 +158,17 @@ body,
   justify-content: flex-end;
 }
 
-.el-dialog {
-  --el-dialog-bg-color: var(--bg-panel);
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
-/* 滚动条 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #26334f;
+  background: #d0d3d8;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-track {

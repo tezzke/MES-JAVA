@@ -43,6 +43,103 @@ export interface DeviceMeta {
   points: PointMeta[];
 }
 
+// ==================== 厂房模型(GET /api/plant,对应后端 plant.json)====================
+
+/** XZ 平面上的矩形范围 */
+export interface Bounds {
+  minX: number;
+  maxX: number;
+  minZ: number;
+  maxZ: number;
+}
+
+/** 建筑轴线(label 为图纸轴号,如 "3-F") */
+export interface AxisLine {
+  label: string;
+  value: number;
+}
+
+/** 轴网:柱子尺寸 + 两个方向的轴线 */
+export interface AxisGrid {
+  columnSize: number;
+  columnHeight: number;
+  axesX: AxisLine[];
+  axesZ: AxisLine[];
+}
+
+/** 一段墙体。glazed 为 true 时按玻璃观察窗渲染 */
+export interface WallSegment {
+  name: string;
+  x1: number;
+  z1: number;
+  x2: number;
+  z2: number;
+  thickness: number;
+  height: number;
+  glazed: boolean;
+}
+
+/** 功能分区。kind 决定地面配色:clean / corridor / utility / office */
+export interface PlantZone {
+  name: string;
+  kind: string;
+  bounds: Bounds;
+  line: string;
+}
+
+/** 厂房壳体 */
+export interface PlantShell {
+  name: string;
+  drawingNo: string;
+  source: string;
+  origin: string;
+  wallHeight: number;
+  wallThickness: number;
+  partitionHeight: number;
+  envelope: Bounds;
+  axisGrid: AxisGrid;
+  partitions: WallSegment[];
+  zones: PlantZone[];
+}
+
+/** 设备模型的一个几何构件 */
+export interface ModelPart {
+  kind: string;
+  name: string;
+  x: number;
+  y: number;
+  z: number;
+  length: number;
+  height: number;
+  width: number;
+  radius: number;
+  axis: string;
+  color: string;
+  opacity: number;
+  rotationY: number;
+}
+
+/** 设备外观模型(按真实机身尺寸与协议书外观特征参数化) */
+export interface DeviceModel {
+  name: string;
+  model: string;
+  vendor: string;
+  source: string;
+  length: number;
+  width: number;
+  height: number;
+  color: string;
+  footprintLength: number;
+  footprintWidth: number;
+  parts: ModelPart[];
+}
+
+/** 厂房模型:壳体 + 设备外观模型库(key 为设备 Type) */
+export interface PlantLayout {
+  plant: PlantShell;
+  deviceModels: Record<string, DeviceModel>;
+}
+
 /** 点位实时值 */
 export interface PointValue {
   name: string;

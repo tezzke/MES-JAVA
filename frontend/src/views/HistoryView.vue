@@ -102,7 +102,7 @@ async function query() {
     <!-- 曲线区域 -->
     <div class="panel chart-panel" v-loading="loading">
       <div class="panel-title">
-        {{ pointMeta ? `${pointMeta.displayName}(${pointMeta.unit || '-'})` : '历史曲线' }}
+        {{ pointMeta ? `${pointMeta.displayName}(${pointMeta.unit || '-'})` : '过程趋势' }}
         <span class="count" v-if="trendData.length">共 {{ trendData.length }} 个数据点</span>
       </div>
       <div class="chart-wrap">
@@ -114,7 +114,7 @@ async function query() {
         />
         <el-empty
           v-else
-          :description="queried ? '该时间段内没有数据' : '选择设备与点位后点击查询'"
+          :description="queried ? '该时段没有采集数据' : '选择设备与工艺参数后查询趋势'"
         />
       </div>
     </div>

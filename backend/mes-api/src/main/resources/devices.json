@@ -7,6 +7,12 @@
   // 寄存器地址为 0 基址;Scale/Offset:工程值 = 原始值 × Scale + Offset
   // 每个模板固定约定:地址 0 = 状态字(0 离线 1 待机 2 运行 3 报警),地址 1~2 = 累计产量(UInt32)
   // 生产部署时把本文件拷到 jar 旁边即可覆盖内置档案,无需重新打包
+  //
+  // 【设备清单来源】四川久科超容超级电容产线,25 份设备技术协议书签字件 + 一层压缩空气平面图
+  // 【3D 坐标来源】压缩空气7.15.dxf,原点 = 轴线 3-F×3-1 交点,X 向东 / Z 向南,单位米
+  //   换算式:X = (CAD_x - 21538.8) / 1000 ; Z = -(CAD_y - 20804.8) / 1000
+  //   每台设备的 CAD 毫米原值写在该行注释里,现场可直接回图核对
+  // 【设备外观】长什么样由 plant.json 的 DeviceModels 按 Type 决定,本文件只管采集与定位
   // ============================================================================
   "Acquisition": {
     "Mode": "Simulation",
@@ -15,94 +21,295 @@
     "ReadTimeoutMs": 3000,
 
     "PointTemplates": {
-      "loader": [
+      // -------------------------------- 电极制造段 --------------------------------
+      "mixer": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计上料数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "HopperLevel", "DisplayName": "料仓余量", "Unit": "%", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100, "AlarmLow": 15 },
-        { "Name": "VibrationFreq", "DisplayName": "振动频率", "Unit": "Hz", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 300 },
-        { "Name": "MotorCurrent", "DisplayName": "电机电流", "Unit": "A", "Address": 5, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 20, "AlarmHigh": 15 }
+        { "Name": "BatchCount", "DisplayName": "累计批次", "Unit": "批", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "MixerSpeed", "DisplayName": "公转转速", "Unit": "rpm", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 120 },
+        { "Name": "DisperserSpeed", "DisplayName": "分散转速", "Unit": "rpm", "Address": 4, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 3000 },
+        { "Name": "SlurryTemp", "DisplayName": "浆料温度", "Unit": "℃", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 80, "AlarmHigh": 45 },
+        { "Name": "VacuumLevel", "DisplayName": "釜内真空度", "Unit": "kPa", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 101 },
+        { "Name": "MotorCurrent", "DisplayName": "主电机电流", "Unit": "A", "Address": 7, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 80, "AlarmHigh": 65 }
       ],
-      "cnc": [
+      "coater": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计加工数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "SpindleSpeed", "DisplayName": "主轴转速", "Unit": "rpm", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 12000 },
-        { "Name": "SpindleTemp", "DisplayName": "主轴温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150, "AlarmHigh": 80 },
-        { "Name": "SpindleCurrent", "DisplayName": "主轴电流", "Unit": "A", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60, "AlarmHigh": 45 },
-        { "Name": "FeedRate", "DisplayName": "进给速度", "Unit": "mm/min", "Address": 6, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 5000 }
+        { "Name": "CoatedLength", "DisplayName": "累计涂布长度", "Unit": "m", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "LineSpeed", "DisplayName": "走带速度", "Unit": "m/min", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 5 },
+        { "Name": "OvenTemp1", "DisplayName": "烘箱1段温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 200, "AlarmHigh": 160 },
+        { "Name": "OvenTemp2", "DisplayName": "烘箱2段温度", "Unit": "℃", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 200, "AlarmHigh": 160 },
+        { "Name": "OvenTemp3", "DisplayName": "烘箱3段温度", "Unit": "℃", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 200, "AlarmHigh": 160 },
+        { "Name": "OvenTemp4", "DisplayName": "烘箱4段温度", "Unit": "℃", "Address": 7, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 200, "AlarmHigh": 160 },
+        { "Name": "WebTension", "DisplayName": "放卷张力", "Unit": "N", "Address": 8, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 200 },
+        { "Name": "AreaDensity", "DisplayName": "面密度", "Unit": "mg/cm²", "Address": 9, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 50 }
       ],
-      "washer": [
+      "rollpress": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计清洗数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "TankTemp", "DisplayName": "水槽温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100, "AlarmHigh": 65 },
-        { "Name": "PumpPressure", "DisplayName": "泵压力", "Unit": "MPa", "Address": 4, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmHigh": 0.8, "AlarmLow": 0.1 },
-        { "Name": "ConveyorSpeed", "DisplayName": "传送速度", "Unit": "m/min", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 20 }
+        { "Name": "PressedLength", "DisplayName": "累计辊压长度", "Unit": "m", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "RollForce", "DisplayName": "辊压力", "Unit": "kN", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 3000, "AlarmHigh": 2800 },
+        { "Name": "RollGap", "DisplayName": "辊缝", "Unit": "μm", "Address": 4, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 2000 },
+        { "Name": "RollTemp", "DisplayName": "轧辊温度", "Unit": "℃", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 120, "AlarmHigh": 95 },
+        { "Name": "LineSpeed", "DisplayName": "走带速度", "Unit": "m/min", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 30 }
       ],
-      "assembly": [
+      "slitter": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计装配数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "CycleTime", "DisplayName": "节拍时间", "Unit": "s", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 120 },
-        { "Name": "Torque", "DisplayName": "拧紧扭矩", "Unit": "N·m", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 30, "AlarmHigh": 25 },
-        { "Name": "AirPressure", "DisplayName": "气源压力", "Unit": "MPa", "Address": 5, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.4 }
+        { "Name": "SlitLength", "DisplayName": "累计分切长度", "Unit": "m", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "LineSpeed", "DisplayName": "分切速度", "Unit": "m/min", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 140 },
+        { "Name": "WebTension", "DisplayName": "收卷张力", "Unit": "N", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150 },
+        { "Name": "BladeCurrent", "DisplayName": "刀轴电机电流", "Unit": "A", "Address": 5, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 20, "AlarmHigh": 16 }
       ],
-      "tester": [
+
+      // -------------------------------- 装配封装段 --------------------------------
+      "winder": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计检测数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "TestVoltage", "DisplayName": "测试电压", "Unit": "V", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 500 },
-        { "Name": "TestCurrent", "DisplayName": "测试电流", "Unit": "A", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 10 },
-        { "Name": "ChamberTemp", "DisplayName": "测试舱温度", "Unit": "℃", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100, "AlarmHigh": 60 },
-        { "Name": "NgCount", "DisplayName": "不良品数", "Unit": "件", "Address": 6, "DataType": "UInt32", "RangeMin": 0 }
+        { "Name": "CoreCount", "DisplayName": "累计卷芯数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "SpindleSpeed", "DisplayName": "卷针转速", "Unit": "rpm", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 600 },
+        { "Name": "WebTension", "DisplayName": "卷绕张力", "Unit": "N", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60 },
+        { "Name": "CycleTime", "DisplayName": "卷绕节拍", "Unit": "s", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 120 },
+        { "Name": "NgCount", "DisplayName": "不良品数", "Unit": "只", "Address": 6, "DataType": "UInt32", "RangeMin": 0 }
       ],
-      "laser": [
+      "laserweld": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计打标数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "LaserPower", "DisplayName": "激光功率", "Unit": "W", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 120, "AlarmHigh": 95 },
-        { "Name": "LensTemp", "DisplayName": "镜片温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100, "AlarmHigh": 55 },
-        { "Name": "MarkSpeed", "DisplayName": "打标速度", "Unit": "mm/s", "Address": 5, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 3000 }
+        { "Name": "WeldCount", "DisplayName": "累计焊接数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "LaserPower", "DisplayName": "激光功率", "Unit": "W", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 4000, "AlarmHigh": 3800 },
+        { "Name": "ChillerTemp", "DisplayName": "冷却水温", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 45, "AlarmHigh": 32 },
+        { "Name": "ShieldGasFlow", "DisplayName": "保护气流量", "Unit": "L/min", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 40, "AlarmLow": 5 },
+        { "Name": "CycleTime", "DisplayName": "焊接节拍", "Unit": "s", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60 },
+        { "Name": "NgCount", "DisplayName": "焊接不良数", "Unit": "只", "Address": 7, "DataType": "UInt32", "RangeMin": 0 }
+      ],
+      "shaper": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "ShapeCount", "DisplayName": "累计整形数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "PressForce", "DisplayName": "压平压力", "Unit": "kN", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100 },
+        { "Name": "CoreHeight", "DisplayName": "整形后高度", "Unit": "mm", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 200 },
+        { "Name": "CycleTime", "DisplayName": "整形节拍", "Unit": "s", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60 }
+      ],
+      "caseloader": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "LoadCount", "DisplayName": "累计入壳数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "PressForce", "DisplayName": "压芯力", "Unit": "kN", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 80 },
+        { "Name": "HeaterTemp", "DisplayName": "加热板温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 300, "AlarmHigh": 285 },
+        { "Name": "AssemblyHeight", "DisplayName": "装配高度", "Unit": "mm", "Address": 5, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 200 },
+        { "Name": "AirPressure", "DisplayName": "气源压力", "Unit": "MPa", "Address": 6, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.6 }
+      ],
+      "groover": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "GrooveCount", "DisplayName": "累计滚槽数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "SpindleSpeed", "DisplayName": "旋压主轴转速", "Unit": "rpm", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 1500 },
+        { "Name": "GrooveDepth", "DisplayName": "腰槽深度", "Unit": "mm", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 20 },
+        { "Name": "AirPressure", "DisplayName": "气源压力", "Unit": "MPa", "Address": 5, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.5 },
+        { "Name": "CycleTime", "DisplayName": "滚槽节拍", "Unit": "s", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60 }
+      ],
+      "sealer": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "SealCount", "DisplayName": "累计封口数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "SpindleSpeed", "DisplayName": "旋压主轴转速", "Unit": "rpm", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 1500 },
+        { "Name": "CurlHeight", "DisplayName": "卷边高度", "Unit": "mm", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 20 },
+        { "Name": "AirPressure", "DisplayName": "气源压力", "Unit": "MPa", "Address": 5, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.5 },
+        { "Name": "LeakRate", "DisplayName": "气密检漏值", "Unit": "Pa", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 500, "AlarmHigh": 200 }
+      ],
+
+      // -------------------------------- 注液老化段 --------------------------------
+      "oven": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "BakeCount", "DisplayName": "累计烘烤批次", "Unit": "批", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "ChamberTemp", "DisplayName": "炉内温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 250, "AlarmHigh": 235 },
+        { "Name": "SetPoint", "DisplayName": "设定温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 250 },
+        { "Name": "RemainMinutes", "DisplayName": "剩余时间", "Unit": "min", "Address": 5, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 1440 },
+        { "Name": "HeaterPower", "DisplayName": "加热功率", "Unit": "kW", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 13 }
+      ],
+      "filler": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "FillCount", "DisplayName": "累计注液数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "VacuumLevel", "DisplayName": "注液真空度", "Unit": "Pa", "Address": 3, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 5000 },
+        { "Name": "FillVolume", "DisplayName": "单只注液量", "Unit": "mL", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 100 },
+        { "Name": "DewPoint", "DisplayName": "箱内露点", "Unit": "℃", "Address": 5, "DataType": "Int16", "Scale": 0.1, "RangeMin": -80, "RangeMax": 20, "AlarmHigh": -40 },
+        { "Name": "OxygenLevel", "DisplayName": "箱内氧含量", "Unit": "ppm", "Address": 6, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 1000, "AlarmHigh": 50 }
+      ],
+      "washline": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "WashCount", "DisplayName": "累计清洗数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "TankTemp", "DisplayName": "槽液温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 90, "AlarmHigh": 70 },
+        { "Name": "UltrasonicPower", "DisplayName": "超声功率", "Unit": "W", "Address": 4, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 2000 },
+        { "Name": "ConveyorSpeed", "DisplayName": "输送速度", "Unit": "m/min", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 20 },
+        { "Name": "DryerTemp", "DisplayName": "烘干段温度", "Unit": "℃", "Address": 6, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150, "AlarmHigh": 120 }
       ],
       "aging": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计老化数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "ChamberTemp", "DisplayName": "老化舱温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150, "AlarmHigh": 85 },
-        { "Name": "Humidity", "DisplayName": "舱内湿度", "Unit": "%RH", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100 },
-        { "Name": "LoadCurrent", "DisplayName": "负载电流", "Unit": "A", "Address": 5, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 50, "AlarmHigh": 40 }
+        { "Name": "AgingCount", "DisplayName": "累计老化数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "ChamberTemp", "DisplayName": "老化舱温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150, "AlarmHigh": 90 },
+        { "Name": "CellVoltage", "DisplayName": "单体电压", "Unit": "V", "Address": 4, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 5, "AlarmHigh": 3 },
+        { "Name": "LoadCurrent", "DisplayName": "充放电电流", "Unit": "A", "Address": 5, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 200, "AlarmHigh": 170 },
+        { "Name": "RemainMinutes", "DisplayName": "剩余时间", "Unit": "min", "Address": 6, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 4320 }
       ],
-      "packer": [
+      "currenttest": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计包装数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "SealTemp", "DisplayName": "封口温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 300, "AlarmHigh": 180 },
-        { "Name": "FilmTension", "DisplayName": "薄膜张力", "Unit": "N", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100 },
-        { "Name": "PackSpeed", "DisplayName": "包装速度", "Unit": "件/min", "Address": 5, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 60 }
+        { "Name": "TestCount", "DisplayName": "累计测试数", "Unit": "只", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "TestCurrent", "DisplayName": "测试电流", "Unit": "A", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 150, "AlarmHigh": 145 },
+        { "Name": "ContactResistance", "DisplayName": "接触电阻", "Unit": "mΩ", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 50, "AlarmHigh": 20 },
+        { "Name": "Capacitance", "DisplayName": "实测容量", "Unit": "F", "Address": 5, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 4000 },
+        { "Name": "NgCount", "DisplayName": "不良品数", "Unit": "只", "Address": 6, "DataType": "UInt32", "RangeMin": 0 }
       ],
-      "robot": [
+
+      "vacuumdryer": [
         { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
-        { "Name": "ProductCount", "DisplayName": "累计码垛数", "Unit": "件", "Address": 1, "DataType": "UInt32", "IsCounter": true },
-        { "Name": "JointTemp", "DisplayName": "关节温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 120, "AlarmHigh": 70 },
-        { "Name": "MotorCurrent", "DisplayName": "伺服电流", "Unit": "A", "Address": 4, "DataType": "UInt16", "Scale": 0.01, "RangeMin": 0, "RangeMax": 30, "AlarmHigh": 25 },
-        { "Name": "CycleTime", "DisplayName": "码垛节拍", "Unit": "s", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 60 }
+        { "Name": "DryBatchCount", "DisplayName": "累计干燥批次", "Unit": "炉", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "ChamberTemp", "DisplayName": "炉内温度", "Unit": "℃", "Address": 3, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 220, "AlarmHigh": 205 },
+        { "Name": "VacuumLevel", "DisplayName": "炉内真空度", "Unit": "Pa", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 1000, "AlarmHigh": 30 },
+        { "Name": "NitrogenPressure", "DisplayName": "氮气压力", "Unit": "MPa", "Address": 5, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.1 },
+        { "Name": "RemainMinutes", "DisplayName": "剩余时间", "Unit": "min", "Address": 6, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 720 },
+        { "Name": "HeaterPower", "DisplayName": "加热功率", "Unit": "kW", "Address": 7, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 12 }
+      ],
+      "dehumidifier": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "RunHours", "DisplayName": "累计运行时长", "Unit": "h", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "SupplyDewPoint", "DisplayName": "送风露点", "Unit": "℃", "Address": 3, "DataType": "Int16", "Scale": 0.1, "RangeMin": -80, "RangeMax": 20, "AlarmHigh": -55 },
+        { "Name": "SupplyTemp", "DisplayName": "送风温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 50, "AlarmHigh": 23 },
+        { "Name": "RegenTemp", "DisplayName": "再生温度", "Unit": "℃", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 180, "AlarmHigh": 160 },
+        { "Name": "AirFlow", "DisplayName": "送风量", "Unit": "m³/h", "Address": 6, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 800 },
+        { "Name": "RotorPressureDrop", "DisplayName": "转轮两侧压差", "Unit": "Pa", "Address": 7, "DataType": "UInt16", "RangeMin": 0, "RangeMax": 2000, "AlarmHigh": 1500 }
+      ],
+
+      // -------------------------------- 公辅系统 --------------------------------
+      // 公辅设备(纯水机 / 冷水机 / 真空负压站 / 配电柜 / 洗水池储水桶)共用一套通用点位,
+      // 现场若某台设备寄存器更丰富,复制一份模板改名即可,不影响其他设备。
+      "utility": [
+        { "Name": "Status", "DisplayName": "运行状态", "Address": 0, "DataType": "UInt16", "IsStatus": true },
+        { "Name": "RunHours", "DisplayName": "累计运行时长", "Unit": "h", "Address": 1, "DataType": "UInt32", "IsCounter": true },
+        { "Name": "OutletPressure", "DisplayName": "出口压力", "Unit": "MPa", "Address": 3, "DataType": "UInt16", "Scale": 0.001, "RangeMin": 0, "RangeMax": 1, "AlarmLow": 0.05 },
+        { "Name": "OutletTemp", "DisplayName": "出口温度", "Unit": "℃", "Address": 4, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 100, "AlarmHigh": 60 },
+        { "Name": "ActivePower", "DisplayName": "有功功率", "Unit": "kW", "Address": 5, "DataType": "UInt16", "Scale": 0.1, "RangeMin": 0, "RangeMax": 400 }
       ]
     },
 
     "Devices": [
-      // -------- 机加工段(第一排,z = -8)--------
-      { "DeviceId": "LOADER-01", "Name": "自动上料机", "Type": "loader", "Line": "机加工段", "IpAddress": "192.168.1.11", "UnitId": 1, "Template": "loader", "Position": { "X": -20, "Z": -8 } },
-      { "DeviceId": "CNC-01", "Name": "CNC加工中心1号", "Type": "cnc", "Line": "机加工段", "IpAddress": "192.168.1.12", "UnitId": 1, "Template": "cnc", "Position": { "X": -12, "Z": -8 } },
-      { "DeviceId": "CNC-02", "Name": "CNC加工中心2号", "Type": "cnc", "Line": "机加工段", "IpAddress": "192.168.1.13", "UnitId": 1, "Template": "cnc", "Position": { "X": -4, "Z": -8 } },
-      { "DeviceId": "CNC-03", "Name": "CNC加工中心3号", "Type": "cnc", "Line": "机加工段", "IpAddress": "192.168.1.14", "UnitId": 1, "Template": "cnc", "Position": { "X": 4, "Z": -8 } },
-      { "DeviceId": "CNC-04", "Name": "CNC加工中心4号", "Type": "cnc", "Line": "机加工段", "IpAddress": "192.168.1.15", "UnitId": 1, "Template": "cnc", "Position": { "X": 12, "Z": -8 } },
-      { "DeviceId": "WASH-01", "Name": "超声波清洗机", "Type": "washer", "Line": "机加工段", "IpAddress": "192.168.1.16", "UnitId": 1, "Template": "washer", "Position": { "X": 20, "Z": -8 } },
+      // ================= 电极制造段:搅拌配料区(轴 3-F ~ 3-E / 3-3 ~ 3-4)=================
+      { "DeviceId": "WTANK-01", "Name": "洗水池+储水桶", "Type": "watertank", "Line": "电极制造段",
+        "IpAddress": "192.168.10.11", "UnitId": 1, "Template": "utility",
+        "Position": { "X": 4.261, "Z": -31.283 } },                         // CAD 25800.0, 52088.0
+      { "DeviceId": "PURE-01", "Name": "纯水机", "Type": "purewater", "Line": "电极制造段",
+        "IpAddress": "192.168.10.12", "UnitId": 1, "Template": "utility",
+        "Position": { "X": 6.897, "Z": -31.266 } },                         // CAD 28436.0, 52071.0
+      { "DeviceId": "MIX-01", "Name": "100L搅拌机1号", "Type": "mixer", "Line": "电极制造段",
+        "IpAddress": "192.168.10.13", "UnitId": 1, "Template": "mixer",
+        "Position": { "X": 7.893, "Z": -31.202 } },                         // CAD 29432.1, 52006.8
+      { "DeviceId": "MIX-02", "Name": "100L搅拌机2号", "Type": "mixer", "Line": "电极制造段",
+        "IpAddress": "192.168.10.14", "UnitId": 1, "Template": "mixer",
+        "Position": { "X": 9.976, "Z": -27.830 } },                         // CAD 31515.1, 48635.1
+      // 300L 搅拌机图纸占位 1560×3100,长边沿 Z,故整机旋转 90°
+      { "DeviceId": "MIX-03", "Name": "300L搅拌机", "Type": "mixer", "Line": "电极制造段",
+        "IpAddress": "192.168.10.15", "UnitId": 1, "Template": "mixer",
+        "Position": { "X": 3.808, "Z": -27.665, "RotationY": 90 } },        // CAD 25347.2, 48469.4
+      { "DeviceId": "OVEN-01", "Name": "鼓风烘箱(搅拌区)", "Type": "oven", "Line": "电极制造段",
+        "IpAddress": "192.168.10.16", "UnitId": 1, "Template": "oven",
+        "Position": { "X": 7.227, "Z": -25.745 } },                         // CAD 28765.5, 46549.7
 
-      // -------- 装配检测段(第二排,z = 2,面向第一排)--------
-      { "DeviceId": "ASM-01", "Name": "装配工作站1号", "Type": "assembly", "Line": "装配检测段", "IpAddress": "192.168.1.17", "UnitId": 1, "Template": "assembly", "Position": { "X": -20, "Z": 2, "RotationY": 180 } },
-      { "DeviceId": "ASM-02", "Name": "装配工作站2号", "Type": "assembly", "Line": "装配检测段", "IpAddress": "192.168.1.18", "UnitId": 1, "Template": "assembly", "Position": { "X": -12, "Z": 2, "RotationY": 180 } },
-      { "DeviceId": "ASM-03", "Name": "装配工作站3号", "Type": "assembly", "Line": "装配检测段", "IpAddress": "192.168.1.19", "UnitId": 1, "Template": "assembly", "Position": { "X": -4, "Z": 2, "RotationY": 180 } },
-      { "DeviceId": "TEST-01", "Name": "综合测试台1号", "Type": "tester", "Line": "装配检测段", "IpAddress": "192.168.1.20", "UnitId": 1, "Template": "tester", "Position": { "X": 4, "Z": 2, "RotationY": 180 } },
-      { "DeviceId": "TEST-02", "Name": "综合测试台2号", "Type": "tester", "Line": "装配检测段", "IpAddress": "192.168.1.21", "UnitId": 1, "Template": "tester", "Position": { "X": 12, "Z": 2, "RotationY": 180 } },
-      { "DeviceId": "LASER-01", "Name": "激光打标机", "Type": "laser", "Line": "装配检测段", "IpAddress": "192.168.1.22", "UnitId": 1, "Template": "laser", "Position": { "X": 20, "Z": 2, "RotationY": 180 } },
+      // ================= 电极制造段:涂布区(轴 3-E ~ 3-B / 3-4)=================
+      { "DeviceId": "COAT-01", "Name": "12米涂布机", "Type": "coater", "Line": "电极制造段",
+        "IpAddress": "192.168.10.21", "UnitId": 1, "Template": "coater",
+        "Position": { "X": 24.137, "Z": -29.968 } },                        // CAD 45675.9, 50772.5
 
-      // -------- 包装码垛段(第三排,z = 12)--------
-      { "DeviceId": "AGING-01", "Name": "老化测试柜", "Type": "aging", "Line": "包装码垛段", "IpAddress": "192.168.1.23", "UnitId": 1, "Template": "aging", "Position": { "X": -12, "Z": 12 } },
-      { "DeviceId": "PACK-01", "Name": "自动包装机", "Type": "packer", "Line": "包装码垛段", "IpAddress": "192.168.1.24", "UnitId": 1, "Template": "packer", "Position": { "X": 0, "Z": 12 } },
-      { "DeviceId": "ROBOT-01", "Name": "码垛机器人", "Type": "robot", "Line": "包装码垛段", "IpAddress": "192.168.1.25", "UnitId": 1, "Template": "robot", "Position": { "X": 12, "Z": 12 } }
+      // ================= 电极制造段:辊压分切区(轴 3-F ~ 3-E / 3-2 ~ 3-3)=================
+      // 辊压线放卷在南、收卷在北,整线沿 Z 方向布置,故整机旋转 90°
+      { "DeviceId": "ROLL-01", "Name": "辊压机", "Type": "rollpress", "Line": "电极制造段",
+        "IpAddress": "192.168.10.31", "UnitId": 1, "Template": "rollpress",
+        "Position": { "X": 4.684, "Z": -17.706, "RotationY": 90 } },        // CAD 26222.8, 38510.9
+      { "DeviceId": "SLIT-01", "Name": "分切机", "Type": "slitter", "Line": "电极制造段",
+        "IpAddress": "192.168.10.32", "UnitId": 1, "Template": "slitter",
+        "Position": { "X": 0.163, "Z": -12.542, "RotationY": 90 } },        // CAD 21701.3, 33346.7
+      { "DeviceId": "SWGR-01", "Name": "生产区配电柜", "Type": "switchgear", "Line": "公辅系统",
+        "IpAddress": "192.168.10.33", "UnitId": 1, "Template": "utility",
+        "Position": { "X": 1.650, "Z": -15.488, "RotationY": 90 } },        // CAD 23188.9, 36292.3
+
+      // ================= 装配封装段:卷绕焊接装配区(轴 3-E ~ 3-B / 3-2 ~ 3-3)=================
+      { "DeviceId": "WIND-01", "Name": "全自动卷绕机", "Type": "winder", "Line": "装配封装段",
+        "IpAddress": "192.168.20.11", "UnitId": 1, "Template": "winder",
+        "Position": { "X": 18.362, "Z": -16.124, "RotationY": 180 } },      // CAD 39901.0, 36929.1
+      { "DeviceId": "SHAPE-01", "Name": "全自动压平整形机", "Type": "shaper", "Line": "装配封装段",
+        "IpAddress": "192.168.20.12", "UnitId": 1, "Template": "shaper",
+        "Position": { "X": 22.380, "Z": -16.224 } },                        // CAD 43918.3, 37029.1
+
+      // 激光焊 6 个工位,坐标取自图纸块 87 的实测中心(工位间距 3.3~4.2 m)。
+      // 图纸未区分型号,按两份协议(GW-H1000-1000 / GW-H2000-2000)交替分配,现场确认后改 Type 即可。
+      { "DeviceId": "LWLD-01", "Name": "激光焊接工位1", "Type": "laserweld-1k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.21", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 18.022, "Z": -20.653 } },                        // CAD 39560.5, 41458.2
+      { "DeviceId": "LWLD-02", "Name": "激光焊接工位2", "Type": "laserweld-2k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.22", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 22.228, "Z": -20.653 } },                        // CAD 43767.1, 41458.2
+      { "DeviceId": "LWLD-03", "Name": "激光焊接工位3", "Type": "laserweld-1k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.23", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 25.562, "Z": -20.653 } },                        // CAD 47100.5, 41458.2
+      { "DeviceId": "LWLD-04", "Name": "激光焊接工位4", "Type": "laserweld-2k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.24", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 28.982, "Z": -20.653 } },                        // CAD 50520.5, 41458.2
+      { "DeviceId": "LWLD-05", "Name": "激光焊接工位5", "Type": "laserweld-1k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.25", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 32.728, "Z": -20.653 } },                        // CAD 54267.1, 41458.2
+      { "DeviceId": "LWLD-06", "Name": "激光焊接工位6", "Type": "laserweld-2k", "Line": "装配封装段",
+        "IpAddress": "192.168.20.26", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 36.242, "Z": -20.653 } },                        // CAD 57780.5, 41458.2
+
+      { "DeviceId": "CASE-01", "Name": "电芯自动入壳装罐机", "Type": "caseloader", "Line": "装配封装段",
+        "IpAddress": "192.168.20.31", "UnitId": 1, "Template": "caseloader",
+        "Position": { "X": 22.693, "Z": -12.683 } },                        // CAD 44232.1, 33488.2
+      { "DeviceId": "GRV-01", "Name": "双动力滚槽机", "Type": "groover", "Line": "装配封装段",
+        "IpAddress": "192.168.20.32", "UnitId": 1, "Template": "groover",
+        "Position": { "X": 30.629, "Z": -12.521 } },                        // CAD 52167.4, 33325.4
+      { "DeviceId": "SEAL-01", "Name": "双动力二次旋压封口机", "Type": "sealer", "Line": "装配封装段",
+        "IpAddress": "192.168.20.33", "UnitId": 1, "Template": "sealer",
+        "Position": { "X": 35.143, "Z": -12.552 } },                        // CAD 56682.1, 33356.7
+      // 脉冲激光焊接机(GW-600)图纸未标注位置,按工艺顺序置于封口机与真空站之间,现场定位后改坐标
+      { "DeviceId": "PLWD-01", "Name": "脉冲激光焊接机", "Type": "pulselaser", "Line": "装配封装段",
+        "IpAddress": "192.168.20.34", "UnitId": 1, "Template": "laserweld",
+        "Position": { "X": 38.500, "Z": -16.500 } },
+
+      // ================= 注液老化段:真空站手套箱区(轴 3-B ~ 3-A / 3-2 ~ 3-3)=================
+      { "DeviceId": "FILL-01", "Name": "真空注液机(手套箱)", "Type": "filler", "Line": "注液老化段",
+        "IpAddress": "192.168.30.11", "UnitId": 1, "Template": "filler",
+        "Position": { "X": 46.693, "Z": -16.547 } },                        // CAD 68232.1, 37352.1
+      // 罐式真空干燥系统按协议 p3 布局图与手套箱通过滚筒式方形对接口直连,故紧邻注液机布置
+      { "DeviceId": "VDRY-01", "Name": "罐式真空干燥系统", "Type": "vacuumdryer", "Line": "注液老化段",
+        "IpAddress": "192.168.30.14", "UnitId": 1, "Template": "vacuumdryer",
+        "Position": { "X": 44.200, "Z": -16.500 } },
+      // 除湿干燥系统服务于注液环境的小干燥间,图纸「除湿机」标注在真空站同一处
+      { "DeviceId": "DEHU-01", "Name": "除湿干燥系统", "Type": "dehumidifier", "Line": "公辅系统",
+        "IpAddress": "192.168.30.15", "UnitId": 1, "Template": "dehumidifier",
+        "Position": { "X": 49.800, "Z": -19.800, "RotationY": 90 } },
+      { "DeviceId": "VAC-01", "Name": "真空负压站", "Type": "vacuumstation", "Line": "公辅系统",
+        "IpAddress": "192.168.30.12", "UnitId": 1, "Template": "utility",
+        "Position": { "X": 50.067, "Z": -16.467, "RotationY": 90 } },       // CAD 71606.3, 37272.1(真空站、除湿机标注)
+      // 冷水机与老化系统图纸未标注位置,置于真空站手套箱区空位,现场定位后改坐标
+      { "DeviceId": "CHILL-01", "Name": "冷水机", "Type": "chiller", "Line": "公辅系统",
+        "IpAddress": "192.168.30.13", "UnitId": 1, "Template": "utility",
+        "Position": { "X": 50.100, "Z": -13.000, "RotationY": 90 } },
+      { "DeviceId": "AGING-01", "Name": "高精度老化测试系统", "Type": "aging", "Line": "注液老化段",
+        "IpAddress": "192.168.30.21", "UnitId": 1, "Template": "aging",
+        "Position": { "X": 44.500, "Z": -20.000 } },
+      { "DeviceId": "CTST-01", "Name": "大电流测试架1号", "Type": "currenttest", "Line": "注液老化段",
+        "IpAddress": "192.168.30.31", "UnitId": 1, "Template": "currenttest",
+        "Position": { "X": 44.300, "Z": -12.400 } },
+      { "DeviceId": "CTST-02", "Name": "大电流测试架2号", "Type": "currenttest", "Line": "注液老化段",
+        "IpAddress": "192.168.30.32", "UnitId": 1, "Template": "currenttest",
+        "Position": { "X": 46.300, "Z": -12.400 } },
+
+      // ================= 注液老化段:成品清洗烘干区(轴 3-B ~ 3-A / 3-3 ~ 3-4)=================
+      // 东侧烘箱组:图纸占位框 1401×4984(CAD y 42338~47322),内含 3 台烘炉标注,按等分布置
+      { "DeviceId": "OVEN-02", "Name": "鼓风烘箱1号", "Type": "oven", "Line": "注液老化段",
+        "IpAddress": "192.168.30.41", "UnitId": 1, "Template": "oven",
+        "Position": { "X": 51.790, "Z": -22.320, "RotationY": 90 } },
+      { "DeviceId": "OVEN-03", "Name": "鼓风烘箱2号", "Type": "oven", "Line": "注液老化段",
+        "IpAddress": "192.168.30.42", "UnitId": 1, "Template": "oven",
+        "Position": { "X": 51.790, "Z": -23.910, "RotationY": 90 } },
+      { "DeviceId": "OVEN-04", "Name": "鼓风烘箱3号", "Type": "oven", "Line": "注液老化段",
+        "IpAddress": "192.168.30.43", "UnitId": 1, "Template": "oven",
+        "Position": { "X": 51.790, "Z": -25.500, "RotationY": 90 } },
+      // 5m 自动清洗线放在图纸 6.77×4.30 m 的成品清洗房内(CAD 清洗机标注在房间东侧,按机身长度居中布置)
+      { "DeviceId": "WASH-01", "Name": "自动清洗线", "Type": "washline", "Line": "注液老化段",
+        "IpAddress": "192.168.30.51", "UnitId": 1, "Template": "washline",
+        "Position": { "X": 44.600, "Z": -30.000 } },                        // CAD 清洗机标注 70104.9, 51909.4
+      { "DeviceId": "OVEN-05", "Name": "鼓风烘箱(成品区)", "Type": "oven", "Line": "注液老化段",
+        "IpAddress": "192.168.30.52", "UnitId": 1, "Template": "oven",
+        "Position": { "X": 50.601, "Z": -31.100 } }                         // CAD 72140.0, 52757.4
     ]
   },
 
@@ -113,9 +320,13 @@
     "SimulateIntervalMs": 8000,
     "ScannerBindings": {
       // 模拟模式:key 为虚拟扫码枪编号;真实模式:key 改为扫码枪的 IP 地址
-      "SIM-SCANNER-01": "ASM-01",
-      "SIM-SCANNER-02": "TEST-01",
-      "SIM-SCANNER-03": "PACK-01"
+      // FILL-01 这把是协议明确要求的:24 号《注液机称重管理系统》规定注液前后各扫码称重一次,
+      // 上下料共用同一把扫码枪与同一台电子称,注液量 = 后重 − 前重
+      "SIM-SCANNER-01": "FILL-01",
+      // 其余三处按条码追溯的关键工序选点:入壳、封口、老化
+      "SIM-SCANNER-02": "CASE-01",
+      "SIM-SCANNER-03": "SEAL-01",
+      "SIM-SCANNER-04": "AGING-01"
     }
   }
 }

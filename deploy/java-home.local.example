@@ -1,0 +1,15 @@
+# 复制本文件为同目录下的 java-home.local(已被 .gitignore 忽略),写入本机 JDK 21 的安装目录。
+# 只写一行路径,不要带引号。脚本会校验该目录下同时存在 bin\java.exe 与 bin\javac.exe,
+# 并且 java -version 的主版本必须是 21。
+#
+# 正确示例:
+#   C:\Program Files\Eclipse Adoptium\jdk-21.0.8-hotspot
+#   D:\JDK\jdk-21.0.8
+#
+# 不要写成:
+#   D:\JDK          (当前这台机器上是 Java 26,不能用来构建本项目)
+#   D:\JDK\bin      (这是 bin 目录,不是 JAVA_HOME)
+#
+# 也可以不建这个文件,改为设置环境变量 MES_JAVA_HOME。
+#
+# C:\Program Files\Eclipse Adoptium\jdk-21.0.8-hotspot

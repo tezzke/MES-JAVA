@@ -5,6 +5,7 @@ import type {
   DeviceMeta,
   DeviceSnapshot,
   PagedResult,
+  PlantLayout,
   SystemInfo,
   TelemetryRecord,
 } from './types';
@@ -19,6 +20,9 @@ export const mesApi = {
 
   /** 获取全部设备最新快照(实时通道连上前的初始数据) */
   getSnapshots: () => http.get<DeviceSnapshot[]>('/api/devices/snapshots').then((r) => r.data),
+
+  /** 获取厂房模型(3D 车间的静态骨架,只在进入 3D 页面时调用一次) */
+  getPlantLayout: () => http.get<PlantLayout>('/api/plant').then((r) => r.data),
 
   /** 查询历史曲线 */
   getHistory: (params: {

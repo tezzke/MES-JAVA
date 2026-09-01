@@ -23,12 +23,12 @@ const lineGroups = computed(() => {
 });
 
 const stats = computed(() => [
-  { label: '设备总数', value: store.devices.length, color: 'var(--accent)' },
-  { label: '运行', value: store.statusCounts.Running, color: statusColor.Running },
+  { label: '在册设备', value: store.devices.length, color: 'var(--accent)' },
+  { label: '运行中', value: store.statusCounts.Running, color: statusColor.Running },
   { label: '待机', value: store.statusCounts.Standby, color: statusColor.Standby },
-  { label: '报警', value: store.statusCounts.Alarm, color: statusColor.Alarm },
+  { label: '报警中', value: store.statusCounts.Alarm, color: statusColor.Alarm },
   { label: '离线', value: store.statusCounts.Offline, color: statusColor.Offline },
-  { label: '累计产量(件)', value: store.totalProduction.toLocaleString(), color: '#a78bfa' },
+  { label: '累计产量', value: store.totalProduction.toLocaleString(), color: '#8b9cff' },
 ]);
 </script>
 
@@ -61,7 +61,7 @@ const stats = computed(() => [
 
       <!-- 实时报警侧栏 -->
       <div class="panel alarms-col">
-        <div class="panel-title">实时报警事件</div>
+        <div class="panel-title">现场报警</div>
         <div class="alarm-list">
           <div
             v-for="alarm in store.alarmFeed"
@@ -80,7 +80,7 @@ const stats = computed(() => [
             </div>
             <div class="alarm-time">{{ formatTime(alarm.resolvedAt ?? alarm.triggeredAt) }}</div>
           </div>
-          <div v-if="!store.alarmFeed.length" class="empty">暂无报警事件</div>
+          <div v-if="!store.alarmFeed.length" class="empty">现场暂无报警</div>
         </div>
       </div>
     </div>
@@ -107,7 +107,8 @@ const stats = computed(() => [
 .stat-value {
   font-size: 26px;
   font-weight: 700;
-  font-family: Consolas, monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .stat-label {
   font-size: 12px;
@@ -146,15 +147,15 @@ const stats = computed(() => [
 }
 .alarm-item {
   padding: 8px 10px;
-  background: rgba(239, 68, 68, 0.07);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 8px;
   font-size: 12.5px;
 }
 .alarm-item.resolved {
-  background: rgba(34, 197, 94, 0.06);
-  border-color: rgba(34, 197, 94, 0.2);
-  opacity: 0.8;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: var(--text-sub);
 }
 .alarm-badge {
   display: inline-block;
@@ -162,16 +163,16 @@ const stats = computed(() => [
   border-radius: 4px;
   font-size: 11px;
   margin-right: 6px;
-  color: #fff;
+  color: #ffffff;
 }
 .alarm-badge.error {
-  background: #ef4444;
+  background: var(--danger);
 }
 .alarm-badge.warning {
-  background: #f59e0b;
+  background: var(--warn);
 }
 .alarm-badge.ok {
-  background: #22c55e;
+  background: var(--ok);
 }
 .alarm-time {
   margin-top: 4px;

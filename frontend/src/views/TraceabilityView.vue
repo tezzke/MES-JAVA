@@ -75,8 +75,8 @@ onMounted(query);
     <!-- 实时扫码流 -->
     <div class="panel live-col">
       <div class="panel-title">
-        实时扫码
-        <span class="hint">点击可追溯</span>
+        工位扫码
+        <span class="hint">点击查看履历</span>
       </div>
       <div class="live-list">
         <div
@@ -91,13 +91,13 @@ onMounted(query);
             <span>{{ formatTime(record.scannedAt) }}</span>
           </div>
         </div>
-        <div v-if="!store.barcodeFeed.length" class="empty">等待扫码数据…</div>
+        <div v-if="!store.barcodeFeed.length" class="empty">等待工位扫码…</div>
       </div>
     </div>
 
     <!-- 历史查询 -->
     <div class="panel query-col">
-      <div class="panel-title">扫码记录查询</div>
+      <div class="panel-title">条码履历</div>
       <div class="query-bar">
         <el-input
           v-model="keyword"
@@ -183,7 +183,7 @@ onMounted(query);
 }
 .live-item:hover {
   border-color: var(--accent);
-  background: rgba(56, 189, 248, 0.07);
+  background: var(--accent-dim);
 }
 .code {
   font-family: Consolas, monospace;

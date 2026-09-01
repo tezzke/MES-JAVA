@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,6 +47,21 @@ class AuthSecurityTest {
                         .contentType("application/json")
                         .content("""
                                 {"username":"admin","password":"not-logged"}"""))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void csrfAllowsLanDevelopmentOrigin() throws Exception {
+        mvc.perform(get("/api/auth/csrf")
+                        .header("Origin", "http://192.168.130.108:5173"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Access-Control-Allow-Origin", "http://192.168.130.108:5173"));
+    }
+
+    @Test
+    void csrfRejectsUnknownOrigin() throws Exception {
+        mvc.perform(get("/api/auth/csrf")
+                        .header("Origin", "https://evil.example"))
                 .andExpect(status().isForbidden());
     }
 }
